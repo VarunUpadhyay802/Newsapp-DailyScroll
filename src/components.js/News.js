@@ -1,75 +1,136 @@
-import React, { Component } from 'react';
-import NewsItem from './NewsItem';
+import React, { Component } from "react";
+import NewsItem from "./NewsItem";
+import Spinner from "./Spinner";
+import PropTypes from "prop-types";
 
 export class News extends Component {
-  articles = [
-    {
-      "source": {
-        "id": "news-com-au",
-        "name": "News.com.au"
-      },
-      "author": "Benedict Brook",
-      "title": "Dramatic development in Imran Khan arrest",
-      "description": "<p>Former cricket captain and recent Pakistan prime minister Imran Khan has been sensationally released from jail after the country&rsquo;s top judge ruled his arrest earlier this week was illegal. </p>",
-      "url": "https://www.news.com.au/world/asia/former-pakistan-pm-and-cricketer-imran-khan-freed-after-arrest-ruled-invalid/news-story/be045d3389e9932e14e4db0b063580aa",
-      "urlToImage": "https://content.api.news/v3/images/bin/46953f2ef9f7e11190ada93b8843b193",
-      "publishedAt": "2023-05-11T13:52:00Z",
-      "content": "Former cricket captain and recent Pakistan prime minister Imran Khan has been sensationally released from jail after the country’s top judge ruled his arrest earlier this week was illegal. \r\nMr Khan … [+3300 chars]"
-    },
-    {
-      "source": {
-        "id": "espn-cric-info",
-        "name": "ESPN Cric Info"
-      },
-      "author": null,
-      "title": "PCB hands Umar Akmal three-year ban from all cricket | ESPNcricinfo.com",
-      "description": "Penalty after the batsman pleaded guilty to not reporting corrupt approaches | ESPNcricinfo.com",
-      "url": "http://www.espncricinfo.com/story/_/id/29103103/pcb-hands-umar-akmal-three-year-ban-all-cricket",
-      "urlToImage": "https://a4.espncdn.com/combiner/i?img=%2Fi%2Fcricket%2Fcricinfo%2F1099495_800x450.jpg",
-      "publishedAt": "2020-04-27T11:41:47Z",
-      "content": "Umar Akmal's troubled cricket career has hit its biggest roadblock yet, with the PCB handing him a ban from all representative cricket for three years after he pleaded guilty of failing to report det… [+1506 chars]"
-    },
-    {
-      "source": {
-        "id": "espn-cric-info",
-        "name": "ESPN Cric Info"
-      },
-      "author": null,
-      "title": "What we learned from watching the 1992 World Cup final in full again | ESPNcricinfo.com",
-      "description": "Wides, lbw calls, swing - plenty of things were different in white-ball cricket back then | ESPNcricinfo.com",
-      "url": "http://www.espncricinfo.com/story/_/id/28970907/learned-watching-1992-world-cup-final-full-again",
-      "urlToImage": "https://a4.espncdn.com/combiner/i?img=%2Fi%2Fcricket%2Fcricinfo%2F1219926_1296x729.jpg",
-      "publishedAt": "2020-03-30T15:26:05Z",
-      "content": "Last week, we at ESPNcricinfo did something we have been thinking of doing for eight years now: pretend-live ball-by-ball commentary for a classic cricket match. We knew the result, yes, but we tried… [+6823 chars]"
-    }
-  ];
-
+  static defaultProps = {
+    country: "in",
+    pageSize: 8,
+    category: "general",
+  };
+  static propTypes = {
+    country: PropTypes.string,
+    pageSize: PropTypes.number,
+    category: PropTypes.string,
+  };
   constructor() {
     super();
     console.log("Hello Constructor this side");
     this.state = {
-      articles: this.articles,
-      loading: false
+      articles: [],
+      Loading: false,
+      page: 1,
     };
   }
 
+  async componentDidMount() {
+    console.log("hi you are in the cdm ");
+    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=dbe57b028aeb41e285a226a94865f7a7&page=1&pageSize=${this.props.pageSize}`;
+    //page sze refers to how many articles you want to show per page
+    // console.log("heyy" + this.props.pageSize);
+    let data = await fetch(url);
+    console.log(data);
+    let parsedData = await data.json();
+    console.log(parsedData);
+    this.setState({
+      articles: parsedData.articles,
+      totalResults: parsedData.totalResults, // Set the totalResults state variable
+    });
+  }
+
+  handleNextClick = async () => {
+    if (this.state.page + 1 > Math.ceil(this.state.totalResults / 20)) {
+    } else {
+      let url = `https://newsapi.org/v2/top-headlines?country=${
+        this.props.country
+      }&category=${
+        this.props.category
+      }&apiKey=dbe57b028aeb41e285a226a94865f7a7&page=${
+        this.state.page + 1
+      }&pageSize=${this.props.pageSize}`;
+      this.setState({ Loading: true });
+      let data = await fetch(url);
+      let parsedData = await data.json();
+
+      this.setState({
+        page: this.state.page + 1,
+        articles: parsedData.articles,
+        Loading: false,
+      });
+    }
+  };
+
+  handlePreviousClick = async () => {
+    console.log("p");
+    if (this.state.page - 1 < 1) {
+      // Check if the page number is already at 1
+    } else {
+      let url = `https://newsapi.org/v2/top-headlines?country=${
+        this.props.country
+      }&category=${
+        this.props.category
+      }&apiKey=dbe57b028aeb41e285a226a94865f7a7&page=${
+        this.state.page - 1
+      }&pageSize=${this.props.pageSize}`;
+      let data = await fetch(url);
+      let parsedData = await data.json();
+      this.setState({
+        page: this.state.page - 1, // Decrement the page state variable
+        articles: parsedData.articles,
+      });
+    }
+  };
+
   render() {
     return (
-      <div className='container my-3'>
-        <h2>NewsApp: The daily scroll</h2>
-        <div className='row'>
-          {this.state.articles.map((element) => {
-            return (
-              <div className='col-md-4' > 
-                <NewsItem
-                  title={element.title.slice(0,45)}
-                  description={element.description.slice(0,88)}
-                  imageUrl={element.urlToImage}
-                  newsUrl={element.url}
-                />
-              </div>
-            );
-          })}
+      <div className="container my-3">
+        <div className="text-center">
+          <h2>Headlines:The daily scroll</h2>
+        </div>
+
+        {this.state.Loading && <Spinner />}
+        <div className="row">
+          {this.state.articles !== undefined &&
+            this.state.articles.map((element) => {
+              return (
+                <div className="col-md-4" key={element.url}>
+                  <NewsItem
+                    title={element.title ? element.title.slice(0, 88) : ""}
+                    description={
+                      element.description
+                        ? element.description.slice(0, 88)
+                        : ""
+                    }
+                    imageUrl={element.urlToImage}
+                    newsUrl={element.url}
+                  />
+                </div>
+              );
+            })}
+        </div>
+        <div className="container d-flex justify-content-between ">
+          <button
+            type="button"
+            className="btn btn-dark"
+            onClick={this.handlePreviousClick}
+            disabled={this.state.page <= 1}
+          >
+            {" "}
+            Previous
+          </button>
+          <button
+            type="button"
+            className="btn btn-dark"
+            onClick={this.handleNextClick}
+            disabled={
+              this.state.page + 1 >
+              Math.ceil(this.state.totalResults) / this.props.pageSize
+            }
+          >
+            {" "}
+            Next
+          </button>
         </div>
       </div>
     );
@@ -77,3 +138,4 @@ export class News extends Component {
 }
 
 export default News;
+export { Spinner };
