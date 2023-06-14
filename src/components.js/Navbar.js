@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+
 import { Link } from "react-router-dom";
 
 const NavBar = (props) => {
@@ -7,7 +7,7 @@ const NavBar = (props) => {
       <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
-            NewsMonkey
+            DailyScroll
           </Link>
           <button
             className="navbar-toggler"

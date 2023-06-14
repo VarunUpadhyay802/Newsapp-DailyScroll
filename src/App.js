@@ -11,7 +11,7 @@ const App = () => {
   const [progress, setProgress] = useState(0)
   return (
 
-    <div>
+    <>
       <BrowserRouter>
         <Navbar />
         <LoadingBar
@@ -33,7 +33,7 @@ const App = () => {
       </BrowserRouter>
 
 
-    </div>
+    </>
   );
 
 }

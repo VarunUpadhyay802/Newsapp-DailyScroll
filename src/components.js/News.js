@@ -53,7 +53,7 @@ const News = (props) => {
     <div className="container my-3">
       <div className="text-center">
         <h2 style={{ marginTop: '70px' }}>
-          Headlines:The daily scroll:{props.category[0].toUpperCase() +
+          DailyScroll:{props.category[0].toUpperCase() +
             props.category.slice(1)}{" "}
         </h2>
       </div>
